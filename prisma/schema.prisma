@@ -1,0 +1,41 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  googleId  String   @unique
+  email     String   @unique
+  createdAt DateTime @default(now())
+
+  overrides CalendarOverride[]
+  settings  UserSettings?
+}
+
+model CalendarOverride {
+  id          String  @id @default(cuid())
+  userId      String
+  calendarId  String  // Google Calendar ID
+  displayName String?
+  color       String?
+  sortOrder   Int     @default(0)
+  hidden      Boolean @default(false)
+  pinned      Boolean @default(false)
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, calendarId])
+}
+
+model UserSettings {
+  id           String  @id @default(cuid())
+  userId       String  @unique
+  weekStartsOn Int     @default(1) // 1 = Monday, 0 = Sunday
+  sidebarOpen  Boolean @default(true)
+
+  user User @relation(fields: [userId], references: [id])
+}

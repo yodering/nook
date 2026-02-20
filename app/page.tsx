@@ -91,7 +91,7 @@ export default async function Page() {
 
           <p className="text-lg text-[#6B5D54] font-light leading-relaxed mb-10">
             nook is an open-source google calendar reskin. calendar events stay in
-            google, and extra per-user data like todo lists and simple preferences
+            google, and extra per-user data like todo lists and user preferences
             are stored on a railway instance.
             <br /><br />
             the idea behind the project was simple: i wanted to combine my to-do lists alongside a calendar app... i got tired of trying different apps that just didn't work for me or required a subscription.

@@ -1,6 +1,7 @@
 import { type NextAuthOptions, getServerSession } from "next-auth";
 import { type JWT } from "next-auth/jwt";
 import GoogleProvider from "next-auth/providers/google";
+import { prisma } from "@/lib/prisma";
 
 async function refreshAccessToken(token: JWT): Promise<JWT> {
   try {
@@ -66,6 +67,19 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
+    async signIn({ user, account }) {
+      if (account && user.email) {
+        await prisma.user.upsert({
+          where: { googleId: account.providerAccountId },
+          update: { email: user.email },
+          create: {
+            googleId: account.providerAccountId,
+            email: user.email,
+          },
+        });
+      }
+      return true;
+    },
     async jwt({ token, account }) {
       if (account) {
         return {

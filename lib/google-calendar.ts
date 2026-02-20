@@ -61,7 +61,7 @@ async function googleFetch<T>(accessToken: string, url: string): Promise<T> {
   return (await response.json()) as T;
 }
 
-async function fetchCalendars(accessToken: string): Promise<GoogleCalendarListItem[]> {
+export async function fetchCalendars(accessToken: string): Promise<GoogleCalendarListItem[]> {
   const calendars: GoogleCalendarListItem[] = [];
   let pageToken: string | undefined;
 
@@ -134,7 +134,7 @@ function normalizeModules(calendars: GoogleCalendarListItem[]): Module[] {
     name: calendar.summary?.trim() || "untitled",
     color:
       MODULE_COLORS[
-        calendar.id ? colorIndexForId(calendar.id) : index % MODULE_COLORS.length
+      calendar.id ? colorIndexForId(calendar.id) : index % MODULE_COLORS.length
       ],
   }));
 }
@@ -168,14 +168,14 @@ function toCalendarEvent(
   const effectiveEnd = sameDayEnd
     ? end
     : new Date(
-        start.getFullYear(),
-        start.getMonth(),
-        start.getDate(),
-        23,
-        59,
-        0,
-        0
-      );
+      start.getFullYear(),
+      start.getMonth(),
+      start.getDate(),
+      23,
+      59,
+      0,
+      0
+    );
 
   const startMinutes = start.getHours() * 60 + start.getMinutes();
   const safeEndMinutes = Math.max(
