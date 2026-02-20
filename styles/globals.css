@@ -121,6 +121,7 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
@@ -236,24 +237,68 @@
 
 /* ── keyframes ── */
 @keyframes nook-drift {
-  0%   { transform: translate(0, 0) scale(1);       opacity: 1; }
-  25%  { transform: translate(40px, -30px) scale(1.08); opacity: 0.75; }
-  50%  { transform: translate(-20px, 40px) scale(0.94); opacity: 0.9; }
-  75%  { transform: translate(30px, 20px) scale(1.04);  opacity: 0.7; }
-  100% { transform: translate(0, 0) scale(1);       opacity: 1; }
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+
+  25% {
+    transform: translate(40px, -30px) scale(1.08);
+    opacity: 0.75;
+  }
+
+  50% {
+    transform: translate(-20px, 40px) scale(0.94);
+    opacity: 0.9;
+  }
+
+  75% {
+    transform: translate(30px, 20px) scale(1.04);
+    opacity: 0.7;
+  }
+
+  100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
 }
 
 @keyframes nook-drift-b {
-  0%   { transform: translate(0, 0) scale(1);        opacity: 0.85; }
-  30%  { transform: translate(-35px, 25px) scale(1.1); opacity: 1; }
-  60%  { transform: translate(25px, -35px) scale(0.92); opacity: 0.7; }
-  100% { transform: translate(0, 0) scale(1);        opacity: 0.85; }
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.85;
+  }
+
+  30% {
+    transform: translate(-35px, 25px) scale(1.1);
+    opacity: 1;
+  }
+
+  60% {
+    transform: translate(25px, -35px) scale(0.92);
+    opacity: 0.7;
+  }
+
+  100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.85;
+  }
 }
 
 @keyframes nook-leaf {
-  0%, 100% { transform: rotate(0deg) translateY(0); }
-  30%       { transform: rotate(4deg) translateY(-8px); }
-  60%       { transform: rotate(-3deg) translateY(6px); }
+
+  0%,
+  100% {
+    transform: rotate(0deg) translateY(0);
+  }
+
+  30% {
+    transform: rotate(4deg) translateY(-8px);
+  }
+
+  60% {
+    transform: rotate(-3deg) translateY(6px);
+  }
 }
 
 /* ── reveal animation ── */
@@ -263,8 +308,15 @@
 }
 
 @keyframes nook-fade-up {
-  from { opacity: 0; transform: translateY(14px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ── typography ── */
@@ -295,7 +347,9 @@
 }
 
 /* ── soft-ink variable ── */
-:root { --nook-soft-ink: #9a8878; }
+:root {
+  --nook-soft-ink: #9a8878;
+}
 
 /* ── CTAs ── */
 .nook-cta-main {
@@ -312,6 +366,7 @@
   padding-bottom: 2px;
   transition: color 0.2s, border-color 0.2s, gap 0.2s;
 }
+
 .nook-cta-main::after {
   content: '→';
   font-size: 0.8em;
@@ -319,10 +374,12 @@
   transition: transform 0.2s, opacity 0.2s;
   display: inline-block;
 }
+
 .nook-cta-main:hover {
   color: #1e1810;
   border-color: rgba(80, 60, 45, 0.6);
 }
+
 .nook-cta-main:hover::after {
   transform: translateX(3px);
   opacity: 1;
@@ -338,6 +395,7 @@
   text-decoration: none;
   transition: color 0.2s;
 }
+
 .nook-cta-secondary:hover {
   color: #7a6d65;
 }
@@ -403,8 +461,15 @@
   padding: 0.85rem 0;
   border-bottom: 1px solid rgba(160, 140, 120, 0.12);
 }
-.nook-agenda-item:first-child { padding-top: 0; }
-.nook-agenda-item:last-child  { border-bottom: none; padding-bottom: 0; }
+
+.nook-agenda-item:first-child {
+  padding-top: 0;
+}
+
+.nook-agenda-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
 
 .nook-agenda-time {
   font-family: 'Geist', system-ui, sans-serif;

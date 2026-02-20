@@ -3,7 +3,10 @@ import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'nook.boo — Weekly Planner',
+  title: {
+    template: 'nook - %s',
+    default: 'nook',
+  },
   description: 'A calm weekly calendar and task planner built on Google Calendar',
 }
 

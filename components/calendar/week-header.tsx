@@ -12,9 +12,6 @@ interface WeekHeaderProps {
   onToggleSidebar: () => void;
 }
 
-const iconButtonClass =
-  "inline-flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted-foreground)] transition-colors hover:bg-[var(--secondary)] hover:text-[var(--foreground)]";
-
 export function WeekHeader({
   currentDate,
   onPrev,
@@ -24,45 +21,41 @@ export function WeekHeader({
   onToggleSidebar,
 }: WeekHeaderProps) {
   return (
-    <header className="flex h-16 items-center justify-between border-b border-[var(--border)] bg-[var(--card)] px-3 sm:px-4">
-      <div className="flex items-center gap-2 sm:gap-3">
+    <header className="flex h-16 items-center justify-between border-b border-[var(--border)]/40 bg-[var(--card)] px-4 sm:px-6">
+      <div className="flex items-center gap-4">
         <button
           onClick={onToggleSidebar}
-          className={iconButtonClass}
+          className="text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors bg-transparent border-none p-1"
           aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
         >
           {sidebarOpen ? (
-            <PanelLeftClose className="h-4 w-4" />
+            <PanelLeftClose className="h-5 w-5" />
           ) : (
-            <PanelLeft className="h-4 w-4" />
+            <PanelLeft className="h-5 w-5" />
           )}
         </button>
 
-        <div className="flex items-center gap-0.5 rounded-full border border-[var(--border)] bg-[var(--secondary)]/70 px-1 py-1">
-          <button onClick={onPrev} className={iconButtonClass} aria-label="Previous week">
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-          <button onClick={onNext} className={iconButtonClass} aria-label="Next week">
-            <ChevronRight className="h-4 w-4" />
-          </button>
-        </div>
-
-        <div>
-          <p className="hidden text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--muted-foreground)] sm:block">
-            nook calendar
-          </p>
-          <h1 className="text-sm font-semibold text-[var(--foreground)] sm:text-base">
-            {getWeekLabel(currentDate)}
-          </h1>
-        </div>
+        <h1 className="text-lg font-medium tracking-tight text-[var(--foreground)]">
+          {getWeekLabel(currentDate)}
+        </h1>
       </div>
 
-      <button
-        onClick={onToday}
-        className="rounded-full border border-[var(--border)] bg-[var(--secondary)] px-3 py-1.5 text-xs font-semibold text-[var(--secondary-foreground)] transition-colors hover:bg-[var(--muted)]"
-      >
-        today
-      </button>
+      <div className="flex items-center gap-3">
+        <button
+          onClick={onToday}
+          className="px-3 py-1.5 text-sm font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
+        >
+          Today
+        </button>
+        <div className="flex items-center gap-1">
+          <button onClick={onPrev} className="p-1.5 rounded-full text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--secondary)] transition-colors" aria-label="Previous week">
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <button onClick={onNext} className="p-1.5 rounded-full text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--secondary)] transition-colors" aria-label="Next week">
+            <ChevronRight className="h-5 w-5" />
+          </button>
+        </div>
+      </div>
     </header>
   );
 }
