@@ -1,0 +1,433 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400;1,500&family=Geist:wght@300;400;500&display=swap');
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.145 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.145 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.985 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.396 0.141 25.723);
+  --destructive-foreground: oklch(0.637 0.237 25.331);
+  --border: oklch(0.269 0 0);
+  --input: oklch(0.269 0 0);
+  --ring: oklch(0.439 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(0.269 0 0);
+  --sidebar-ring: oklch(0.439 0 0);
+}
+
+@theme inline {
+  --font-sans: 'Geist', system-ui, sans-serif;
+  --font-serif: 'Lora', Georgia, serif;
+  --font-mono: 'Geist Mono', 'Geist Mono Fallback';
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* ========================================
+   NOOK LANDING PAGE
+   sunlight · nature · quiet
+   ======================================== */
+
+/* ── page shell ── reset dark-mode vars so this page is always light ── */
+.nook-landing {
+  /* override dark-mode CSS variables back to light values */
+  --background: #faf7f2;
+  --foreground: #3d3530;
+  --card: #faf7f2;
+  --card-foreground: #3d3530;
+  --border: rgba(160, 140, 120, 0.2);
+  --muted-foreground: #9a8878;
+
+  background-color: #faf7f2 !important;
+  color: #3d3530 !important;
+  font-family: 'Geist', system-ui, sans-serif;
+  color-scheme: light;
+}
+
+/* ── atmosphere layer ── */
+.nook-atmosphere {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* warm sunbeam pools – gentle, large, blurred */
+.nook-sunbeam {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  pointer-events: none;
+}
+
+.nook-sunbeam-a {
+  top: -20%;
+  left: -15%;
+  width: 90vw;
+  max-width: 1000px;
+  height: 90vw;
+  max-height: 1000px;
+  background: radial-gradient(circle, rgba(255, 210, 80, 0.55) 0%, rgba(255, 200, 60, 0.2) 40%, transparent 70%);
+  animation: nook-drift 20s ease-in-out infinite;
+}
+
+.nook-sunbeam-b {
+  bottom: -18%;
+  right: -12%;
+  width: 75vw;
+  max-width: 820px;
+  height: 75vw;
+  max-height: 820px;
+  background: radial-gradient(circle, rgba(160, 215, 130, 0.45) 0%, rgba(140, 200, 110, 0.15) 45%, transparent 70%);
+  animation: nook-drift-b 26s ease-in-out infinite;
+}
+
+/* leaf shadows – impressionistic, faint */
+.nook-leaf-shadow {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 44% 56% 62% 38% / 48% 40% 60% 52%;
+  opacity: 0.055;
+  background: #5a7a52;
+  filter: blur(2px);
+}
+
+.nook-leaf-shadow-a {
+  top: 8%;
+  right: 7%;
+  width: 90px;
+  height: 130px;
+  animation: nook-leaf 28s ease-in-out infinite;
+  transform-origin: 50% 20%;
+}
+
+.nook-leaf-shadow-b {
+  bottom: 18%;
+  left: 4%;
+  width: 70px;
+  height: 100px;
+  animation: nook-leaf 34s ease-in-out infinite;
+  animation-delay: -10s;
+  transform-origin: 50% 20%;
+}
+
+.nook-leaf-shadow-c {
+  top: 55%;
+  right: 22%;
+  width: 55px;
+  height: 80px;
+  animation: nook-leaf 24s ease-in-out infinite;
+  animation-delay: -6s;
+  transform-origin: 50% 20%;
+}
+
+/* film grain overlay */
+.nook-grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.028;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 180px;
+}
+
+/* ── keyframes ── */
+@keyframes nook-drift {
+  0%   { transform: translate(0, 0) scale(1);       opacity: 1; }
+  25%  { transform: translate(40px, -30px) scale(1.08); opacity: 0.75; }
+  50%  { transform: translate(-20px, 40px) scale(0.94); opacity: 0.9; }
+  75%  { transform: translate(30px, 20px) scale(1.04);  opacity: 0.7; }
+  100% { transform: translate(0, 0) scale(1);       opacity: 1; }
+}
+
+@keyframes nook-drift-b {
+  0%   { transform: translate(0, 0) scale(1);        opacity: 0.85; }
+  30%  { transform: translate(-35px, 25px) scale(1.1); opacity: 1; }
+  60%  { transform: translate(25px, -35px) scale(0.92); opacity: 0.7; }
+  100% { transform: translate(0, 0) scale(1);        opacity: 0.85; }
+}
+
+@keyframes nook-leaf {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  30%       { transform: rotate(4deg) translateY(-8px); }
+  60%       { transform: rotate(-3deg) translateY(6px); }
+}
+
+/* ── reveal animation ── */
+.nook-reveal {
+  opacity: 0;
+  animation: nook-fade-up 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes nook-fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── typography ── */
+.nook-eyebrow {
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 300;
+  letter-spacing: 0.14em;
+  color: #b09a8a;
+}
+
+.nook-title {
+  font-family: 'Lora', Georgia, serif;
+  font-size: clamp(2.4rem, 5vw, 3.6rem);
+  font-weight: 400;
+  line-height: 1.18;
+  letter-spacing: -0.01em;
+  color: #2d2520;
+}
+
+.nook-subtitle {
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 1.05rem;
+  font-weight: 300;
+  line-height: 1.7;
+  color: #6b5d54;
+  max-width: 38ch;
+}
+
+/* ── soft-ink variable ── */
+:root { --nook-soft-ink: #9a8878; }
+
+/* ── CTAs ── */
+.nook-cta-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 0.875rem;
+  font-weight: 300;
+  color: #3d3530;
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  border-bottom: 1px solid rgba(80, 60, 45, 0.35);
+  padding-bottom: 2px;
+  transition: color 0.2s, border-color 0.2s, gap 0.2s;
+}
+.nook-cta-main::after {
+  content: '→';
+  font-size: 0.8em;
+  opacity: 0.6;
+  transition: transform 0.2s, opacity 0.2s;
+  display: inline-block;
+}
+.nook-cta-main:hover {
+  color: #1e1810;
+  border-color: rgba(80, 60, 45, 0.6);
+}
+.nook-cta-main:hover::after {
+  transform: translateX(3px);
+  opacity: 1;
+}
+
+.nook-cta-secondary {
+  display: inline-flex;
+  align-items: center;
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 0.8rem;
+  font-weight: 300;
+  color: #b09a8a;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.nook-cta-secondary:hover {
+  color: #7a6d65;
+}
+
+/* ── feature pills ── */
+.nook-pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.nook-pill {
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 0.7rem;
+  font-weight: 300;
+  letter-spacing: 0.1em;
+  color: #b09a8a;
+}
+
+/* ── preview window ── */
+.nook-window {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(160, 140, 120, 0.18);
+  border-radius: 18px;
+  padding: 1.75rem 1.75rem 1.5rem;
+  backdrop-filter: blur(12px);
+  box-shadow:
+    0 2px 4px rgba(80, 60, 40, 0.04),
+    0 8px 32px rgba(80, 60, 40, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.nook-window-kicker {
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 0.67rem;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #b09a8a;
+  margin-bottom: 0.35rem;
+}
+
+.nook-window-title {
+  font-family: 'Lora', Georgia, serif;
+  font-size: 1.15rem;
+  font-weight: 400;
+  font-style: italic;
+  color: #3d3530;
+  line-height: 1.35;
+  margin-bottom: 1.4rem;
+}
+
+.nook-agenda {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.nook-agenda-item {
+  padding: 0.85rem 0;
+  border-bottom: 1px solid rgba(160, 140, 120, 0.12);
+}
+.nook-agenda-item:first-child { padding-top: 0; }
+.nook-agenda-item:last-child  { border-bottom: none; padding-bottom: 0; }
+
+.nook-agenda-time {
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  color: #b09a8a;
+  margin-bottom: 0.2rem;
+}
+
+.nook-agenda-task {
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 0.875rem;
+  font-weight: 300;
+  color: #4a3d36;
+  line-height: 1.45;
+}
+
+.nook-window-note {
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 300;
+  color: #b09a8a;
+  margin-top: 1.25rem;
+  line-height: 1.6;
+}
