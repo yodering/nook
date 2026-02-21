@@ -2,7 +2,7 @@ FROM oven/bun:1
 
 WORKDIR /app
 
-COPY package.json bun.lockb ./
+COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
 
 COPY . .
@@ -10,7 +10,5 @@ COPY . .
 RUN bunx prisma generate
 RUN bun run build
 
-RUN bunx prisma migrate deploy
-
 EXPOSE 3000
-CMD ["bun", "run", "start"]
+CMD ["sh", "-c", "bunx prisma migrate deploy && bun run start"]
