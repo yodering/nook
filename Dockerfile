@@ -10,5 +10,7 @@ COPY . .
 RUN bunx prisma generate
 RUN bun run build
 
+RUN bunx prisma migrate deploy
+
 EXPOSE 3000
 CMD ["bun", "run", "start"]
