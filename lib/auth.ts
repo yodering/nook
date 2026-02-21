@@ -17,28 +17,23 @@ function sanitizeEnv(value: string): string {
   return trimmed;
 }
 
-function requireEnv(
+function readEnv(
   name: "GOOGLE_CLIENT_ID" | "GOOGLE_CLIENT_SECRET" | "NEXTAUTH_SECRET",
-): string {
+): string | undefined {
   const raw = process.env[name];
-
-  if (!raw) {
-    throw new Error(`[auth] Missing required environment variable: ${name}`);
-  }
+  if (!raw) return undefined;
 
   const value = sanitizeEnv(raw);
-  if (!value) {
-    throw new Error(`[auth] Environment variable ${name} is empty after sanitization`);
-  }
+  if (!value) return undefined;
 
   return value;
 }
 
-const GOOGLE_CLIENT_ID = requireEnv("GOOGLE_CLIENT_ID");
-const GOOGLE_CLIENT_SECRET = requireEnv("GOOGLE_CLIENT_SECRET");
-const NEXTAUTH_SECRET = requireEnv("NEXTAUTH_SECRET");
+const GOOGLE_CLIENT_ID = readEnv("GOOGLE_CLIENT_ID");
+const GOOGLE_CLIENT_SECRET = readEnv("GOOGLE_CLIENT_SECRET");
+const NEXTAUTH_SECRET = readEnv("NEXTAUTH_SECRET");
 
-if (!GOOGLE_CLIENT_ID.endsWith(".apps.googleusercontent.com")) {
+if (GOOGLE_CLIENT_ID && !GOOGLE_CLIENT_ID.endsWith(".apps.googleusercontent.com")) {
   throw new Error(
     "[auth] GOOGLE_CLIENT_ID is malformed. It should end with .apps.googleusercontent.com",
   );
@@ -46,7 +41,7 @@ if (!GOOGLE_CLIENT_ID.endsWith(".apps.googleusercontent.com")) {
 
 async function refreshAccessToken(token: JWT): Promise<JWT> {
   try {
-    if (!token.refreshToken) {
+    if (!token.refreshToken || !GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
       return { ...token, error: "RefreshAccessTokenError" };
     }
 
@@ -95,8 +90,8 @@ export const authOptions: NextAuthOptions = {
   },
   providers: [
     GoogleProvider({
-      clientId: GOOGLE_CLIENT_ID,
-      clientSecret: GOOGLE_CLIENT_SECRET,
+      clientId: GOOGLE_CLIENT_ID ?? "",
+      clientSecret: GOOGLE_CLIENT_SECRET ?? "",
       authorization: {
         params: {
           prompt: "consent",
