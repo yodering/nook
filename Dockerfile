@@ -10,5 +10,5 @@ COPY . .
 RUN bunx prisma generate
 RUN bun run build
 
-EXPOSE 3000
-CMD ["sh", "-c", "bunx prisma migrate deploy && bun run start"]
+EXPOSE 8080
+CMD ["sh", "-c", "bunx prisma migrate deploy && bun run start -- --hostname 0.0.0.0 --port ${PORT:-8080}"]
