@@ -21,7 +21,7 @@ export function GoogleSignInButton({
   return (
     <button
       onClick={() => signIn("google", { callbackUrl })}
-      className={cn(baseClasses, className)}
+      className={cn("cursor-pointer", baseClasses, className)}
       type="button"
     >
       {label}

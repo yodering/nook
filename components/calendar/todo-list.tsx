@@ -17,6 +17,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import { format } from "date-fns";
 import type { Todo, TodoList as TodoListType } from "@/lib/calendar-data";
 
 interface TodoListProps {
@@ -63,6 +64,20 @@ function TodoItem({
     // Brief delay so the user sees the check animation before it disappears
     setTimeout(() => onComplete(todo.id), 450);
   }
+
+  const dueLabel = (() => {
+    if (todo.scheduleToken) {
+      return `@${todo.scheduleToken}`;
+    }
+    if (!todo.dueAt) {
+      return null;
+    }
+    const date = new Date(todo.dueAt);
+    if (Number.isNaN(date.getTime())) {
+      return null;
+    }
+    return format(date, "EEE, MMM d");
+  })();
 
   return (
     <motion.div
@@ -117,18 +132,25 @@ function TodoItem({
         </motion.div>
       </button>
 
-      <motion.span
-        className="text-[13px] leading-relaxed"
-        animate={
-          checking
-            ? { opacity: 0.3, textDecoration: "line-through" }
-            : { opacity: 1, textDecoration: "none" }
-        }
-        transition={{ duration: 0.2 }}
-        style={{ color: "var(--foreground)" }}
-      >
-        {todo.text}
-      </motion.span>
+      <div className="min-w-0">
+        <motion.span
+          className="text-[13px] leading-relaxed"
+          animate={
+            checking
+              ? { opacity: 0.3, textDecoration: "line-through" }
+              : { opacity: 1, textDecoration: "none" }
+          }
+          transition={{ duration: 0.2 }}
+          style={{ color: "var(--foreground)" }}
+        >
+          {todo.text}
+        </motion.span>
+        {dueLabel && (
+          <div className="mt-0.5 text-[10px] uppercase tracking-wide text-[var(--muted-foreground)]">
+            {dueLabel}
+          </div>
+        )}
+      </div>
     </motion.div>
   );
 }

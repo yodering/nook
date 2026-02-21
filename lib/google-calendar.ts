@@ -220,6 +220,7 @@ function toTodo(
     text: event.summary?.trim() || "untitled task",
     listId: `list-${moduleId}`,
     completed: false,
+    source: "google",
   };
 }
 

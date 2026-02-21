@@ -37,6 +37,9 @@ export interface Todo {
   text: string;
   listId: string;
   completed: boolean;
+  dueAt?: string | null;
+  scheduleToken?: string | null;
+  source?: "google" | "local";
 }
 
 export interface WeekCalendarPayload {

@@ -14,6 +14,8 @@ model User {
 
   overrides CalendarOverride[]
   settings  UserSettings?
+  todoLists TodoList[]
+  todos     TodoItem[]
 }
 
 model CalendarOverride {
@@ -32,10 +34,47 @@ model CalendarOverride {
 }
 
 model UserSettings {
-  id           String  @id @default(cuid())
-  userId       String  @unique
-  weekStartsOn Int     @default(1) // 1 = Monday, 0 = Sunday
-  sidebarOpen  Boolean @default(true)
+  id                   String  @id @default(cuid())
+  userId               String  @unique
+  weekStartsOn         Int     @default(1) // 1 = Monday, 0 = Sunday
+  sidebarOpen          Boolean @default(true)
+  theme                String  @default("light")
+  timezone             String  @default("UTC")
+  defaultEventDuration Int     @default(60)
 
   user User @relation(fields: [userId], references: [id])
+}
+
+model TodoList {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  color     String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user  User     @relation(fields: [userId], references: [id])
+  todos TodoItem[]
+
+  @@index([userId, sortOrder])
+}
+
+model TodoItem {
+  id            String    @id @default(cuid())
+  userId        String
+  listId        String
+  text          String
+  completed     Boolean   @default(false)
+  dueAt         DateTime?
+  scheduleToken String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  completedAt   DateTime?
+
+  user User     @relation(fields: [userId], references: [id])
+  list TodoList @relation(fields: [listId], references: [id], onDelete: Cascade)
+
+  @@index([userId, completed, dueAt])
+  @@index([listId, createdAt])
 }

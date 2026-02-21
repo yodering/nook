@@ -33,6 +33,34 @@
   --today-highlight: rgba(79, 109, 68, 0.09);
 }
 
+.dark {
+  --background: #1f2420;
+  --foreground: #e9eddc;
+  --card: #252b26;
+  --card-foreground: #e9eddc;
+  --popover: #2a312c;
+  --popover-foreground: #e9eddc;
+  --primary: #9fbd8f;
+  --primary-foreground: #172018;
+  --secondary: #313932;
+  --secondary-foreground: #d5dbc8;
+  --muted: #2c342d;
+  --muted-foreground: #a6af9c;
+  --accent: #d29664;
+  --accent-foreground: #22170f;
+  --destructive: #dc7a71;
+  --destructive-foreground: #230d0d;
+  --border: #3a443b;
+  --input: #2f372f;
+  --ring: #8cb277;
+
+  --sidebar-bg: #222923;
+  --sidebar-foreground: #e9eddc;
+  --sidebar-border: #364135;
+
+  --today-highlight: rgba(159, 189, 143, 0.13);
+}
+
 @theme inline {
   --font-sans: 'Manrope', 'Avenir Next', 'Segoe UI', sans-serif;
   --font-serif: 'Cormorant Garamond', Georgia, serif;
@@ -76,6 +104,10 @@
     min-height: 100vh;
     text-rendering: optimizeLegibility;
     background-image: linear-gradient(180deg, #f8f4e7 0%, #f4efdf 38%, #f1ebdb 100%);
+  }
+
+  .dark body {
+    background-image: linear-gradient(180deg, #222a24 0%, #1f2420 38%, #1b201c 100%);
   }
 }
 
