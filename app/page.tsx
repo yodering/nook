@@ -1,11 +1,9 @@
 import Link from "next/link";
-import { auth } from "@/lib/auth";
 import { SmoothScrollButton } from "@/components/landing/smooth-scroll-button";
 
-export default async function Page() {
-  const session = await auth();
-  const primaryHref = session ? "/calendar" : "/login";
-  const primaryLabel = session ? "open calendar" : "continue with google";
+export default function Page() {
+  const primaryHref = "/login";
+  const primaryLabel = "continue with google";
 
   return (
     <main className="min-h-screen w-full bg-[#FCFAF6] text-[#3D3530] flex flex-col relative overflow-hidden selection:bg-[#7F9F95]/30 scroll-smooth">

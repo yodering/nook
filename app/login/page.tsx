@@ -1,14 +1,6 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
-import { auth } from "@/lib/auth";
-
-export default async function LoginPage() {
-  const session = await auth();
-
-  if (session) {
-    redirect("/calendar");
-  }
+export default function LoginPage() {
 
   return (
     <main className="nook-landing nook-auth-wrap px-4">
