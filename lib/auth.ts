@@ -3,6 +3,47 @@ import { type JWT } from "next-auth/jwt";
 import GoogleProvider from "next-auth/providers/google";
 import { prisma } from "@/lib/prisma";
 
+function sanitizeEnv(value: string): string {
+  const trimmed = value.trim();
+  const hasDoubleQuotes =
+    trimmed.startsWith("\"") && trimmed.endsWith("\"");
+  const hasSingleQuotes =
+    trimmed.startsWith("'") && trimmed.endsWith("'");
+
+  if (hasDoubleQuotes || hasSingleQuotes) {
+    return trimmed.slice(1, -1).trim();
+  }
+
+  return trimmed;
+}
+
+function requireEnv(
+  name: "GOOGLE_CLIENT_ID" | "GOOGLE_CLIENT_SECRET" | "NEXTAUTH_SECRET",
+): string {
+  const raw = process.env[name];
+
+  if (!raw) {
+    throw new Error(`[auth] Missing required environment variable: ${name}`);
+  }
+
+  const value = sanitizeEnv(raw);
+  if (!value) {
+    throw new Error(`[auth] Environment variable ${name} is empty after sanitization`);
+  }
+
+  return value;
+}
+
+const GOOGLE_CLIENT_ID = requireEnv("GOOGLE_CLIENT_ID");
+const GOOGLE_CLIENT_SECRET = requireEnv("GOOGLE_CLIENT_SECRET");
+const NEXTAUTH_SECRET = requireEnv("NEXTAUTH_SECRET");
+
+if (!GOOGLE_CLIENT_ID.endsWith(".apps.googleusercontent.com")) {
+  throw new Error(
+    "[auth] GOOGLE_CLIENT_ID is malformed. It should end with .apps.googleusercontent.com",
+  );
+}
+
 async function refreshAccessToken(token: JWT): Promise<JWT> {
   try {
     if (!token.refreshToken) {
@@ -15,8 +56,8 @@ async function refreshAccessToken(token: JWT): Promise<JWT> {
         "Content-Type": "application/x-www-form-urlencoded",
       },
       body: new URLSearchParams({
-        client_id: process.env.GOOGLE_CLIENT_ID ?? "",
-        client_secret: process.env.GOOGLE_CLIENT_SECRET ?? "",
+        client_id: GOOGLE_CLIENT_ID,
+        client_secret: GOOGLE_CLIENT_SECRET,
         grant_type: "refresh_token",
         refresh_token: token.refreshToken,
       }),
@@ -45,7 +86,7 @@ async function refreshAccessToken(token: JWT): Promise<JWT> {
 }
 
 export const authOptions: NextAuthOptions = {
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: NEXTAUTH_SECRET,
   pages: {
     signIn: "/login",
   },
@@ -54,8 +95,8 @@ export const authOptions: NextAuthOptions = {
   },
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID ?? "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
+      clientId: GOOGLE_CLIENT_ID,
+      clientSecret: GOOGLE_CLIENT_SECRET,
       authorization: {
         params: {
           prompt: "consent",
