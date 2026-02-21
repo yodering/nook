@@ -34,8 +34,8 @@ const GOOGLE_CLIENT_SECRET = readEnv("GOOGLE_CLIENT_SECRET");
 const NEXTAUTH_SECRET = readEnv("NEXTAUTH_SECRET");
 
 if (GOOGLE_CLIENT_ID && !GOOGLE_CLIENT_ID.endsWith(".apps.googleusercontent.com")) {
-  throw new Error(
-    "[auth] GOOGLE_CLIENT_ID is malformed. It should end with .apps.googleusercontent.com",
+  console.error(
+    "[auth] GOOGLE_CLIENT_ID appears malformed. It should end with .apps.googleusercontent.com",
   );
 }
 
