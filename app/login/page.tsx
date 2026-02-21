@@ -25,7 +25,7 @@ export default function LoginPage() {
             welcome back to your <span className="italic font-light text-[#81746B]">nook.</span>
           </h1>
           <p className="mt-4 text-[15px] leading-relaxed text-[#6B5D54]">
-            Sign in with Google to keep your weekly view synced with the calendar you already use.
+            sign in with google to keep your weekly view synced with the calendar you already use.
           </p>
 
           <div className="mt-8">
@@ -37,7 +37,7 @@ export default function LoginPage() {
 
           <div className="mt-6 flex items-center gap-3 text-[12px] text-[#81746B]">
             <span className="h-px flex-1 bg-[#A08C78]/25" />
-            <span>events stay in Google Calendar</span>
+            <span>events stay in google calendar</span>
             <span className="h-px flex-1 bg-[#A08C78]/25" />
           </div>
 
