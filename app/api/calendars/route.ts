@@ -3,10 +3,19 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { fetchCalendars } from "@/lib/google-calendar";
 
+type MergedCalendar = {
+    id: string;
+    name: string;
+    color: string | null;
+    sortOrder: number;
+    hidden: boolean;
+    pinned: boolean;
+};
+
 export async function GET() {
     try {
         const session = await auth();
-        if (!session?.user?.email) {
+        if (!session?.user?.email || !session.accessToken) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
@@ -20,15 +29,18 @@ export async function GET() {
         }
 
         // Explicitly pass the user's access token to the Google Calendar API call
-        const googleCalendars = await fetchCalendars(session.accessToken as string);
+        const googleCalendars = await fetchCalendars(session.accessToken);
 
         // Merge Google Calendars with DB overrides
-        const mergedCalendars = googleCalendars.map((gCal: any) => {
-            const override = user.overrides.find((o: any) => o.calendarId === gCal.id);
+        const mergedCalendars: MergedCalendar[] = googleCalendars
+            .filter((gCal) => Boolean(gCal.id))
+            .map((gCal) => {
+            const calendarId = gCal.id as string;
+            const override = user.overrides.find((o) => o.calendarId === calendarId);
             return {
-                id: gCal.id,
-                name: override?.displayName ?? gCal.name,
-                color: override?.color ?? gCal.color,
+                id: calendarId,
+                name: override?.displayName ?? gCal.summary ?? "untitled",
+                color: override?.color ?? gCal.backgroundColor ?? null,
                 sortOrder: override?.sortOrder ?? 0,
                 hidden: override?.hidden ?? false,
                 pinned: override?.pinned ?? false,
@@ -36,7 +48,7 @@ export async function GET() {
         });
 
         // Sort: pinned first, then by sortOrder, then by name
-        mergedCalendars.sort((a: any, b: any) => {
+        mergedCalendars.sort((a, b) => {
             if (a.pinned && !b.pinned) return -1;
             if (!a.pinned && b.pinned) return 1;
             if (a.sortOrder !== b.sortOrder) return a.sortOrder - b.sortOrder;

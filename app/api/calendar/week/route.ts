@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { getWeekCalendarPayload } from "@/lib/google-calendar";
+import { prisma } from "@/lib/prisma";
 
 export async function GET(request: Request) {
   const session = await auth();
 
-  if (!session?.accessToken) {
+  if (!session?.accessToken || !session.user?.email) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -18,7 +19,20 @@ export async function GET(request: Request) {
   }
 
   try {
-    const payload = await getWeekCalendarPayload(session.accessToken, anchorDate);
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      include: { overrides: true },
+    });
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    const payload = await getWeekCalendarPayload(
+      session.accessToken,
+      anchorDate,
+      user.overrides
+    );
     return NextResponse.json(payload, {
       status: 200,
       headers: {

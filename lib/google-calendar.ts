@@ -18,6 +18,7 @@ const GOOGLE_CALENDAR_BASE_URL = "https://www.googleapis.com/calendar/v3";
 interface GoogleCalendarListItem {
   id?: string;
   summary?: string;
+  backgroundColor?: string;
   hidden?: boolean;
 }
 
@@ -43,6 +44,15 @@ interface GoogleCalendarEvent {
 interface GoogleEventsResponse {
   items?: GoogleCalendarEvent[];
   nextPageToken?: string;
+}
+
+export interface CalendarOverrideInput {
+  calendarId: string;
+  displayName: string | null;
+  color: string | null;
+  sortOrder: number;
+  hidden: boolean;
+  pinned: boolean;
 }
 
 async function googleFetch<T>(accessToken: string, url: string): Promise<T> {
@@ -120,7 +130,14 @@ async function fetchEventsForCalendar(
   return events;
 }
 
-function normalizeModules(calendars: GoogleCalendarListItem[]): Module[] {
+function normalizeModules(
+  calendars: GoogleCalendarListItem[],
+  overrides: CalendarOverrideInput[]
+): Module[] {
+  const overrideMap = new Map(
+    overrides.map((override) => [override.calendarId, override])
+  );
+
   const colorIndexForId = (id: string): number => {
     let hash = 0;
     for (let i = 0; i < id.length; i += 1) {
@@ -129,14 +146,39 @@ function normalizeModules(calendars: GoogleCalendarListItem[]): Module[] {
     return Math.abs(hash) % MODULE_COLORS.length;
   };
 
-  return calendars.map((calendar, index) => ({
-    id: calendar.id!,
-    name: calendar.summary?.trim() || "untitled",
-    color:
-      MODULE_COLORS[
-      calendar.id ? colorIndexForId(calendar.id) : index % MODULE_COLORS.length
-      ],
-  }));
+  return calendars
+    .filter((calendar) => {
+      if (!calendar.id) return false;
+      return !overrideMap.get(calendar.id)?.hidden;
+    })
+    .map((calendar, index) => {
+      const override = calendar.id ? overrideMap.get(calendar.id) : undefined;
+      return {
+        id: calendar.id!,
+        name: override?.displayName?.trim() || calendar.summary?.trim() || "untitled",
+        color:
+          override?.color ||
+          calendar.backgroundColor ||
+          MODULE_COLORS[
+            calendar.id ? colorIndexForId(calendar.id) : index % MODULE_COLORS.length
+          ],
+      };
+    })
+    .sort((a, b) => {
+      const overrideA = overrideMap.get(a.id);
+      const overrideB = overrideMap.get(b.id);
+
+      if (overrideA?.pinned && !overrideB?.pinned) return -1;
+      if (!overrideA?.pinned && overrideB?.pinned) return 1;
+
+      const sortA = overrideA?.sortOrder ?? 0;
+      const sortB = overrideB?.sortOrder ?? 0;
+      if (sortA !== sortB) {
+        return sortA - sortB;
+      }
+
+      return a.name.localeCompare(b.name);
+    });
 }
 
 function toCalendarEvent(
@@ -226,7 +268,8 @@ function toTodo(
 
 export async function getWeekCalendarPayload(
   accessToken: string,
-  anchorDate: Date
+  anchorDate: Date,
+  overrides: CalendarOverrideInput[] = []
 ): Promise<WeekCalendarPayload> {
   const weekStart = startOfWeek(anchorDate, { weekStartsOn: 1 });
   const weekEnd = endOfWeek(anchorDate, { weekStartsOn: 1 });
@@ -234,7 +277,7 @@ export async function getWeekCalendarPayload(
   const timeMax = weekEnd.toISOString();
 
   const rawCalendars = await fetchCalendars(accessToken);
-  const modules = normalizeModules(rawCalendars);
+  const modules = normalizeModules(rawCalendars, overrides);
   const todoLists: TodoList[] = modules.map((module) => ({
     id: `list-${module.id}`,
     name: module.name,

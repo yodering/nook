@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { WeekHeader } from "./week-header";
 import { Sidebar } from "./sidebar";
 import { WeekGrid } from "./week-grid";
@@ -14,51 +14,6 @@ import type {
   WeekCalendarPayload,
 } from "@/lib/calendar-data";
 
-const LIST_PREFERENCES_STORAGE_KEY = "nook:list-preferences:v1";
-
-interface ListPreference {
-  color?: string;
-  name?: string;
-}
-
-type ListPreferences = Record<string, ListPreference>;
-
-function getPreferenceKeyFromList(list: Pick<TodoList, "id" | "moduleId">): string {
-  if (list.moduleId) {
-    return list.moduleId;
-  }
-  return list.id.startsWith("list-") ? list.id.slice(5) : list.id;
-}
-
-function applyListPreferencesToModules(
-  modules: Module[],
-  preferences: ListPreferences
-): Module[] {
-  return modules.map((module) => {
-    const preference = preferences[module.id];
-    return {
-      ...module,
-      name: preference?.name?.trim() || module.name,
-      color: preference?.color || module.color,
-    };
-  });
-}
-
-function applyListPreferencesToTodoLists(
-  todoLists: TodoList[],
-  preferences: ListPreferences
-): TodoList[] {
-  return todoLists.map((list) => {
-    const preferenceKey = getPreferenceKeyFromList(list);
-    const preference = preferences[preferenceKey];
-    return {
-      ...list,
-      name: preference?.name?.trim() || list.name,
-      color: preference?.color || list.color,
-    };
-  });
-}
-
 export function CalendarApp() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -68,30 +23,7 @@ export function CalendarApp() {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [listPreferences, setListPreferences] = useState<ListPreferences>({});
-  const [preferencesLoaded, setPreferencesLoaded] = useState(false);
-  const listPreferencesRef = useRef<ListPreferences>({});
   const { theme, setTheme } = useTheme();
-
-  useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(LIST_PREFERENCES_STORAGE_KEY);
-      if (!raw) {
-        setPreferencesLoaded(true);
-        return;
-      }
-      const parsed = JSON.parse(raw) as ListPreferences;
-      setListPreferences(parsed);
-    } catch {
-      setListPreferences({});
-    } finally {
-      setPreferencesLoaded(true);
-    }
-  }, []);
-
-  useEffect(() => {
-    listPreferencesRef.current = listPreferences;
-  }, [listPreferences]);
 
   useEffect(() => {
     let ignore = false;
@@ -134,20 +66,6 @@ export function CalendarApp() {
   }, [setTheme]);
 
   useEffect(() => {
-    if (!preferencesLoaded) {
-      return;
-    }
-    window.localStorage.setItem(
-      LIST_PREFERENCES_STORAGE_KEY,
-      JSON.stringify(listPreferences)
-    );
-  }, [listPreferences, preferencesLoaded]);
-
-  useEffect(() => {
-    if (!preferencesLoaded) {
-      return;
-    }
-
     const controller = new AbortController();
     let ignore = false;
 
@@ -197,15 +115,10 @@ export function CalendarApp() {
           return;
         }
 
-        setModules(
-          applyListPreferencesToModules(weekData.modules, listPreferencesRef.current)
-        );
+        setModules(weekData.modules);
         setEvents(weekData.events);
         setTodoLists([
-          ...applyListPreferencesToTodoLists(
-            weekData.todoLists,
-            listPreferencesRef.current
-          ),
+          ...weekData.todoLists,
           ...localLists,
         ]);
         setTodos([...weekData.todos, ...localTodos]);
@@ -231,7 +144,7 @@ export function CalendarApp() {
       ignore = true;
       controller.abort();
     };
-  }, [currentDate, preferencesLoaded]);
+  }, [currentDate]);
 
   const handlePrev = useCallback(() => {
     setCurrentDate((d) => navigateWeek(d, "prev"));
@@ -376,20 +289,22 @@ export function CalendarApp() {
     }
 
     const targetList = todoLists.find((list) => list.id === listId);
-    if (targetList) {
-      const preferenceKey = getPreferenceKeyFromList(targetList);
-      setListPreferences((prev) => ({
-        ...prev,
-        [preferenceKey]: {
-          ...prev[preferenceKey],
-          name,
-        },
-      }));
+    if (targetList?.moduleId) {
       setModules((prev) =>
         prev.map((module) =>
-          module.id === preferenceKey ? { ...module, name } : module
+          module.id === targetList.moduleId ? { ...module, name } : module
         )
       );
+      fetch("/api/user/preferences", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          calendarId: targetList.moduleId,
+          displayName: name,
+        }),
+      }).catch(() => {
+        // Best effort; data will resync on next page load.
+      });
     }
     setTodoLists((prev) =>
       prev.map((l) => (l.id === listId ? { ...l, name } : l))
@@ -412,20 +327,22 @@ export function CalendarApp() {
     }
 
     const targetList = todoLists.find((list) => list.id === listId);
-    if (targetList) {
-      const preferenceKey = getPreferenceKeyFromList(targetList);
-      setListPreferences((prev) => ({
-        ...prev,
-        [preferenceKey]: {
-          ...prev[preferenceKey],
-          color,
-        },
-      }));
+    if (targetList?.moduleId) {
       setModules((prev) =>
         prev.map((module) =>
-          module.id === preferenceKey ? { ...module, color } : module
+          module.id === targetList.moduleId ? { ...module, color } : module
         )
       );
+      fetch("/api/user/preferences", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          calendarId: targetList.moduleId,
+          color,
+        }),
+      }).catch(() => {
+        // Best effort; data will resync on next page load.
+      });
     }
     setTodoLists((prev) =>
       prev.map((l) => (l.id === listId ? { ...l, color } : l))
