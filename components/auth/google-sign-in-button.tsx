@@ -14,10 +14,14 @@ export function GoogleSignInButton({
   label = "Continue with Google",
   callbackUrl = "/calendar",
 }: GoogleSignInButtonProps = {}) {
+  const baseClasses = className
+    ? "w-full border-0 px-4 py-3 text-sm"
+    : "nook-cta-main w-full border-0 px-4 py-3 text-sm";
+
   return (
     <button
       onClick={() => signIn("google", { callbackUrl })}
-      className={cn("nook-cta-main w-full border-0 px-4 py-3 text-sm", className)}
+      className={cn(baseClasses, className)}
       type="button"
     >
       {label}

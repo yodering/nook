@@ -3,7 +3,7 @@ import { SmoothScrollButton } from "@/components/landing/smooth-scroll-button";
 
 export default function Page() {
   const primaryHref = "/login";
-  const primaryLabel = "continue with google";
+  const primaryLabel = "open nook";
 
   return (
     <main className="min-h-screen w-full bg-[#FCFAF6] text-[#3D3530] flex flex-col relative overflow-hidden selection:bg-[#7F9F95]/30 scroll-smooth">
