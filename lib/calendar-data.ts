@@ -23,6 +23,8 @@ export interface CalendarEvent {
   startMinute: number;
   endHour: number;
   endMinute: number;
+  description?: string;
+  location?: string;
 }
 
 export interface TodoList {

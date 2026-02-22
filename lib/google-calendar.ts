@@ -39,6 +39,8 @@ interface GoogleCalendarEvent {
     date?: string;
     dateTime?: string;
   };
+  description?: string;
+  location?: string;
 }
 
 interface GoogleEventsResponse {
@@ -80,6 +82,8 @@ interface CreateGoogleEventInput {
   timeZone: string;
   colorId?: string;
   recurrence?: string[];
+  description?: string;
+  location?: string;
 }
 
 interface CreatedGoogleEvent {
@@ -117,6 +121,8 @@ export async function createGoogleCalendarEvent(
         },
         colorId: input.colorId,
         recurrence: input.recurrence,
+        description: input.description,
+        location: input.location,
       }),
     }
   );
@@ -139,6 +145,8 @@ interface UpdateGoogleEventInput {
   timeZone: string;
   colorId?: string;
   recurrence?: string[] | null;
+  description?: string;
+  location?: string;
 }
 
 export async function updateGoogleCalendarEvent(
@@ -165,6 +173,8 @@ export async function updateGoogleCalendarEvent(
         },
         colorId: input.colorId,
         recurrence: input.recurrence,
+        description: input.description,
+        location: input.location,
       }),
     }
   );
@@ -288,7 +298,7 @@ function normalizeModules(
           override?.color ||
           calendar.backgroundColor ||
           MODULE_COLORS[
-            calendar.id ? colorIndexForId(calendar.id) : index % MODULE_COLORS.length
+          calendar.id ? colorIndexForId(calendar.id) : index % MODULE_COLORS.length
           ],
       };
     })
@@ -363,6 +373,8 @@ function toCalendarEvent(
     startMinute: start.getMinutes(),
     endHour: Math.floor(boundedEndMinutes / 60),
     endMinute: boundedEndMinutes % 60,
+    description: event.description,
+    location: event.location,
   };
 }
 

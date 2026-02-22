@@ -43,6 +43,8 @@ export async function POST(req: Request) {
       timeZone?: string;
       recurrence?: "none" | "daily" | "weekdays" | "weekly" | "monthly" | "yearly" | "custom";
       colorId?: string;
+      description?: string;
+      location?: string;
     };
 
     if (!body.calendarId || !body.start || !body.durationMinutes) {
@@ -67,6 +69,8 @@ export async function POST(req: Request) {
       timeZone: body.timeZone || "UTC",
       colorId: body.colorId,
       recurrence: toRecurrenceRule(body.recurrence || "none"),
+      description: body.description,
+      location: body.location,
     });
 
     const createdStart = created.start?.dateTime ? new Date(created.start.dateTime) : startDate;
@@ -109,6 +113,8 @@ export async function PATCH(req: Request) {
       timeZone?: string;
       recurrence?: "none" | "daily" | "weekdays" | "weekly" | "monthly" | "yearly" | "custom";
       colorId?: string;
+      description?: string;
+      location?: string;
     };
 
     if (!body.calendarId || !body.eventId || !body.start || !body.durationMinutes) {
@@ -137,6 +143,8 @@ export async function PATCH(req: Request) {
         body.recurrence && body.recurrence !== "none"
           ? toRecurrenceRule(body.recurrence)
           : undefined,
+      description: body.description,
+      location: body.location,
     });
 
     const updatedStart = updated.start?.dateTime ? new Date(updated.start.dateTime) : startDate;

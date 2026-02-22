@@ -378,6 +378,8 @@ export function CalendarApp() {
       durationMinutes: number;
       recurrence: "none" | "daily" | "weekdays" | "weekly" | "monthly" | "yearly" | "custom";
       colorId?: string;
+      description?: string;
+      location?: string;
       timeZone: string;
     }) => {
       try {
@@ -410,6 +412,8 @@ export function CalendarApp() {
       durationMinutes: number;
       recurrence: "none" | "daily" | "weekdays" | "weekly" | "monthly" | "yearly" | "custom";
       colorId?: string;
+      description?: string;
+      location?: string;
       timeZone: string;
     }) => {
       try {
@@ -424,6 +428,8 @@ export function CalendarApp() {
             durationMinutes: input.durationMinutes,
             recurrence: input.recurrence,
             colorId: input.colorId,
+            description: input.description,
+            location: input.location,
             timeZone: input.timeZone,
           }),
         });

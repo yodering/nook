@@ -27,6 +27,8 @@ interface WeekGridProps {
     durationMinutes: number;
     recurrence: "none" | "daily" | "weekdays" | "weekly" | "monthly" | "yearly" | "custom";
     colorId?: string;
+    description?: string;
+    location?: string;
     timeZone: string;
   }) => Promise<boolean>;
   onUpdateEvent: (input: {
@@ -38,6 +40,8 @@ interface WeekGridProps {
     durationMinutes: number;
     recurrence: "none" | "daily" | "weekdays" | "weekly" | "monthly" | "yearly" | "custom";
     colorId?: string;
+    description?: string;
+    location?: string;
     timeZone: string;
   }) => Promise<boolean>;
   onDeleteEvent: (input: {
@@ -262,6 +266,8 @@ export function WeekGrid({
     durationMinutes: number;
     recurrence: "none" | "daily" | "weekdays" | "weekly" | "monthly" | "yearly" | "custom";
     colorId: string;
+    description?: string;
+    location?: string;
     x: number;
     y: number;
   } | null>(null);
@@ -271,6 +277,8 @@ export function WeekGrid({
     hour: number;
     minute: number;
     durationMinutes: number;
+    description?: string;
+    location?: string;
     x: number;
     y: number;
   } | null>(null);
@@ -324,6 +332,8 @@ export function WeekGrid({
       durationMinutes: defaultEventDuration || 60,
       recurrence: "none",
       colorId: "9",
+      description: "",
+      location: "",
       x,
       y,
     });
@@ -341,6 +351,8 @@ export function WeekGrid({
       durationMinutes: draft.durationMinutes,
       recurrence: draft.recurrence,
       colorId: draft.colorId || undefined,
+      description: draft.description,
+      location: draft.location,
       timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC",
     });
     setIsSubmitting(false);
@@ -377,6 +389,8 @@ export function WeekGrid({
       hour: event.startHour,
       minute: event.startMinute,
       durationMinutes: Math.max(30, duration),
+      description: event.description || "",
+      location: event.location || "",
       x,
       y,
     });
@@ -399,6 +413,8 @@ export function WeekGrid({
       start: start.toISOString(),
       durationMinutes: editDraft.durationMinutes,
       recurrence: "none",
+      description: editDraft.description,
+      location: editDraft.location,
       timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC",
     });
     setIsEditingSubmitting(false);
@@ -553,8 +569,8 @@ export function WeekGrid({
                           endHour: draft.hour + Math.floor((draft.minute + draft.durationMinutes) / 60),
                           endMinute: (draft.minute + draft.durationMinutes) % 60,
                           dayOffset: dayIndex,
-                          overlapIndex: layoutEvents.length,
-                          totalOverlaps: Math.max(1, layoutEvents.length + 1),
+                          overlapIndex: 0,
+                          totalOverlaps: 1,
                         }}
                         color={moduleColors.get(draft.calendarId) ?? "#cae3eb"} // Amie blue default
                       />
@@ -568,8 +584,8 @@ export function WeekGrid({
                           startMinute: editDraft.minute,
                           endHour: editDraft.hour + Math.floor((editDraft.minute + editDraft.durationMinutes) / 60),
                           endMinute: (editDraft.minute + editDraft.durationMinutes) % 60,
-                          overlapIndex: editingEvent.overlapIndex,
-                          totalOverlaps: editingEvent.totalOverlaps,
+                          overlapIndex: 0,
+                          totalOverlaps: 1,
                         }}
                         color={moduleColors.get(editingEvent.moduleId) ?? "#cae3eb"}
                       />
@@ -671,6 +687,42 @@ export function WeekGrid({
                       <span className="font-medium">Repeat</span>
                     </div>
                   </div>
+                </div>
+              </div>
+
+              {/* Description & Location Inputs */}
+              <div className="flex flex-col gap-2 px-4 py-3 border-b border-[var(--border)]/40 relative">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-center h-[18px] w-[18px] shrink-0">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--muted-foreground)]">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                      <circle cx="12" cy="10" r="3"></circle>
+                    </svg>
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Add location"
+                    value={draft.location}
+                    onChange={(e) => setDraft((prev) => prev ? { ...prev, location: e.target.value } : prev)}
+                    className="w-full bg-transparent p-0 text-[13px] font-medium text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] outline-none border-none focus:ring-0"
+                  />
+                </div>
+                <div className="flex items-start gap-3 mt-1">
+                  <div className="flex items-center justify-center h-[18px] w-[18px] shrink-0 mt-0.5">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--muted-foreground)]">
+                      <line x1="17" y1="10" x2="3" y2="10"></line>
+                      <line x1="21" y1="6" x2="3" y2="6"></line>
+                      <line x1="21" y1="14" x2="3" y2="14"></line>
+                      <line x1="17" y1="18" x2="3" y2="18"></line>
+                    </svg>
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Add description"
+                    value={draft.description}
+                    onChange={(e) => setDraft((prev) => prev ? { ...prev, description: e.target.value } : prev)}
+                    className="w-full bg-transparent p-0 text-[13px] font-medium text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] outline-none border-none focus:ring-0"
+                  />
                 </div>
               </div>
 
@@ -788,6 +840,42 @@ export function WeekGrid({
                       <option value="custom">Custom</option>
                     </select>
                   </div>
+                </div>
+              </div>
+
+              {/* Description & Location Inputs */}
+              <div className="flex flex-col gap-2 px-4 py-3 border-b border-[var(--border)]/40 relative">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-center h-[18px] w-[18px] shrink-0">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--muted-foreground)]">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                      <circle cx="12" cy="10" r="3"></circle>
+                    </svg>
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Add location"
+                    value={editDraft.location}
+                    onChange={(e) => setEditDraft((prev) => prev ? { ...prev, location: e.target.value } : prev)}
+                    className="w-full bg-transparent p-0 text-[13px] font-medium text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] outline-none border-none focus:ring-0"
+                  />
+                </div>
+                <div className="flex items-start gap-3 mt-1">
+                  <div className="flex items-center justify-center h-[18px] w-[18px] shrink-0 mt-0.5">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--muted-foreground)]">
+                      <line x1="17" y1="10" x2="3" y2="10"></line>
+                      <line x1="21" y1="6" x2="3" y2="6"></line>
+                      <line x1="21" y1="14" x2="3" y2="14"></line>
+                      <line x1="17" y1="18" x2="3" y2="18"></line>
+                    </svg>
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Add description"
+                    value={editDraft.description}
+                    onChange={(e) => setEditDraft((prev) => prev ? { ...prev, description: e.target.value } : prev)}
+                    className="w-full bg-transparent p-0 text-[13px] font-medium text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] outline-none border-none focus:ring-0"
+                  />
                 </div>
               </div>
 
