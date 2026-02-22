@@ -354,17 +354,7 @@ export function CalendarApp() {
     );
   }, [todoLists]);
 
-  const handleToggleTheme = useCallback(() => {
-    const nextTheme: "light" | "dark" = theme === "dark" ? "light" : "dark";
-    setTheme(nextTheme);
-    fetch("/api/user/settings", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ theme: nextTheme }),
-    }).catch(() => {
-      // Keep optimistic theme update.
-    });
-  }, [setTheme, theme]);
+  // Uses ThemeToggle directly
 
   const handleToggleSidebar = useCallback(() => {
     setSidebarOpen((previous) => {
@@ -491,8 +481,6 @@ export function CalendarApp() {
           onToday={handleToday}
           sidebarOpen={sidebarOpen}
           onToggleSidebar={handleToggleSidebar}
-          onToggleTheme={handleToggleTheme}
-          theme={theme === "dark" ? "dark" : "light"}
         />
 
         <div className="flex min-h-0 flex-1 overflow-hidden">

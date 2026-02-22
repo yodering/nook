@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Circle, Users, Video, Clock, Lock, Bell, MoreHorizontal, Calendar as CalendarIcon } from "lucide-react";
 import {
   format,
   isToday,
@@ -156,7 +157,7 @@ function EventBlock({
 }: {
   event: LayoutEvent;
   color: string;
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
 }) {
   const top =
     (event.startHour - minHour) * HOUR_HEIGHT +
@@ -261,6 +262,8 @@ export function WeekGrid({
     durationMinutes: number;
     recurrence: "none" | "daily" | "weekdays" | "weekly" | "monthly" | "yearly";
     colorId: string;
+    x: number;
+    y: number;
   } | null>(null);
   const [editingEvent, setEditingEvent] = useState<LayoutEvent | null>(null);
   const [editDraft, setEditDraft] = useState<{
@@ -268,6 +271,8 @@ export function WeekGrid({
     hour: number;
     minute: number;
     durationMinutes: number;
+    x: number;
+    y: number;
   } | null>(null);
   const [isEditingSubmitting, setIsEditingSubmitting] = useState(false);
   const moduleColors = useMemo(() => {
@@ -293,7 +298,7 @@ export function WeekGrid({
     return start.toISOString();
   }
 
-  function openCreateModal(dayIndex: number, clientY: number, top: number) {
+  function openCreateModal(dayIndex: number, clientX: number, clientY: number, top: number) {
     if (modules.length === 0) {
       return;
     }
@@ -302,6 +307,13 @@ export function WeekGrid({
     const roundedMinutes = Math.round(hourFloat * 4) * 15;
     const hour = Math.floor(roundedMinutes / 60);
     const minute = roundedMinutes % 60;
+
+    let x = clientX + 16;
+    let y = clientY - 40;
+
+    // basic edge detection
+    if (x + 360 > window.innerWidth) x = window.innerWidth - 380;
+    if (y + 360 > window.innerHeight) y = window.innerHeight - 380;
 
     setDraft({
       dayIndex,
@@ -312,6 +324,8 @@ export function WeekGrid({
       durationMinutes: defaultEventDuration || 60,
       recurrence: "none",
       colorId: "9",
+      x,
+      y,
     });
     setShowCreateModal(true);
   }
@@ -347,15 +361,24 @@ export function WeekGrid({
     };
   }
 
-  function openEditModal(event: LayoutEvent) {
+  function openEditModal(event: LayoutEvent, clientX: number, clientY: number) {
     const duration =
       (event.endHour - event.startHour) * 60 + (event.endMinute - event.startMinute);
+
+    let x = clientX + 16;
+    let y = clientY - 40;
+
+    if (x + 360 > window.innerWidth) x = window.innerWidth - 380;
+    if (y + 360 > window.innerHeight) y = window.innerHeight - 380;
+
     setEditingEvent(event);
     setEditDraft({
       title: event.title,
       hour: event.startHour,
       minute: event.startMinute,
       durationMinutes: Math.max(30, duration),
+      x,
+      y,
     });
   }
 
@@ -405,121 +428,124 @@ export function WeekGrid({
   return (
     <>
       <div className="flex-1 flex flex-col overflow-hidden bg-[var(--background)]">
-      {/* Scrollable time grid holding its own sticky header */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto calendar-scroll relative">
-        {/* Day headers */}
-        <div className="sticky top-0 z-30 flex shrink-0 border-b border-[var(--border)]/40 bg-[var(--card)]/80 backdrop-blur-md">
-          <div className="w-16 flex-shrink-0" />
-          {days.map((day, i) => {
-            const today = isToday(day);
-            return (
-              <div
-                key={i}
-                className="flex-1 border-l border-[var(--border)]/40 py-3 text-center"
-              >
-                <div
-                  className={`text-[11px] font-medium tracking-wide ${today
-                    ? "text-[var(--primary)]"
-                    : "text-[var(--muted-foreground)]"
-                    }`}
-                >
-                  {format(day, "EEE")}
-                </div>
-                <div
-                  className={`text-xl font-medium mt-0.5 ${today ? "text-[var(--primary)]" : "text-[var(--foreground)]"
-                    }`}
-                >
-                  {today ? (
-                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[var(--primary)] text-[var(--primary-foreground)] shadow-sm">
-                      {format(day, "d")}
-                    </span>
-                  ) : (
-                    format(day, "d")
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={format(startOfWeek(currentDate, { weekStartsOn: 1 }), "yyyy-MM-dd")}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={springConfig}
-            className="flex relative"
-            style={{ height: `${HOURS.length * HOUR_HEIGHT}px` }}
-          >
-            {/* Time labels column */}
-            <div className="w-16 flex-shrink-0 relative bg-[var(--background)]">
-              {HOURS.map((hour) => (
-                <div
-                  key={hour}
-                  className="absolute w-full text-right pr-3"
-                  style={{
-                    top: `${(hour - minHour) * HOUR_HEIGHT}px`,
-                    transform: "translateY(-50%)",
-                  }}
-                >
-                  <span className="text-[11px] font-medium text-[var(--muted-foreground)]/70">
-                    {formatHour(hour)}
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            {/* Day columns */}
-            {days.map((day, dayIndex) => {
+        {/* Scrollable time grid holding its own sticky header */}
+        <div ref={scrollRef} className="flex-1 overflow-y-auto calendar-scroll relative">
+          {/* Day headers */}
+          <div className="sticky top-0 z-30 flex shrink-0 border-b border-[var(--border)]/40 bg-[var(--card)]/80 backdrop-blur-md">
+            <div className="w-16 flex-shrink-0" />
+            {days.map((day, i) => {
               const today = isToday(day);
-              const dayEvents = events.filter(
-                (e) => e.dayOffset === dayIndex
-              );
-              const layoutEvents = calculateOverlaps(dayEvents);
-
               return (
                 <div
-                  key={dayIndex}
-                  className="relative flex-1 border-l border-[var(--border)]/40"
-                  style={{
-                    backgroundColor: today
-                      ? "var(--today-highlight)"
-                      : undefined,
-                  }}
-                  onDoubleClick={(event) => {
-                    const rect = event.currentTarget.getBoundingClientRect();
-                    openCreateModal(dayIndex, event.clientY, rect.top);
-                  }}
+                  key={i}
+                  className="flex-1 border-l border-[var(--border)]/40 py-3 text-center"
                 >
-                  {/* Hour grid lines */}
-                  {HOURS.map((hour) => (
-                    <div
-                      key={hour}
-                      className="absolute w-full border-t border-[var(--border)]/40"
-                      style={{
-                        top: `${(hour - minHour) * HOUR_HEIGHT}px`,
-                      }}
-                    />
-                  ))}
-
-                  {/* Events */}
-                  {layoutEvents.map((event) => (
-                    <EventBlock
-                      key={event.id}
-                      event={event}
-                      color={moduleColors.get(event.moduleId) ?? "#86a37a"}
-                      onClick={() => openEditModal(event)}
-                    />
-                  ))}
-
-                  {/* Current time line */}
-                  {today && isCurrentWeek && <CurrentTimeLine />}
+                  <div
+                    className={`text-[11px] font-medium tracking-wide ${today
+                      ? "text-[var(--primary)]"
+                      : "text-[var(--muted-foreground)]"
+                      }`}
+                  >
+                    {format(day, "EEE")}
+                  </div>
+                  <div
+                    className={`text-xl font-medium mt-0.5 ${today ? "text-[var(--primary)]" : "text-[var(--foreground)]"
+                      }`}
+                  >
+                    {today ? (
+                      <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[var(--primary)] text-[var(--primary-foreground)] shadow-sm">
+                        {format(day, "d")}
+                      </span>
+                    ) : (
+                      format(day, "d")
+                    )}
+                  </div>
                 </div>
               );
             })}
-          </motion.div>
-        </AnimatePresence>
-      </div>
+          </div>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={format(startOfWeek(currentDate, { weekStartsOn: 1 }), "yyyy-MM-dd")}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={springConfig}
+              className="flex relative"
+              style={{ height: `${HOURS.length * HOUR_HEIGHT}px` }}
+            >
+              {/* Time labels column */}
+              <div className="w-16 flex-shrink-0 relative bg-[var(--background)]">
+                {HOURS.map((hour) => (
+                  <div
+                    key={hour}
+                    className="absolute w-full text-right pr-3"
+                    style={{
+                      top: `${(hour - minHour) * HOUR_HEIGHT}px`,
+                      transform: "translateY(-50%)",
+                    }}
+                  >
+                    <span className="text-[11px] font-medium text-[var(--muted-foreground)]/70">
+                      {formatHour(hour)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Day columns */}
+              {days.map((day, dayIndex) => {
+                const today = isToday(day);
+                const dayEvents = events.filter(
+                  (e) => e.dayOffset === dayIndex
+                );
+                const layoutEvents = calculateOverlaps(dayEvents);
+
+                return (
+                  <div
+                    key={dayIndex}
+                    className="relative flex-1 border-l border-[var(--border)]/40"
+                    style={{
+                      backgroundColor: today
+                        ? "var(--today-highlight)"
+                        : undefined,
+                    }}
+                    onDoubleClick={(event) => {
+                      const rect = event.currentTarget.getBoundingClientRect();
+                      openCreateModal(dayIndex, event.clientX, event.clientY, rect.top);
+                    }}
+                  >
+                    {/* Hour grid lines */}
+                    {HOURS.map((hour) => (
+                      <div
+                        key={hour}
+                        className="absolute w-full border-t border-[var(--border)]/40"
+                        style={{
+                          top: `${(hour - minHour) * HOUR_HEIGHT}px`,
+                        }}
+                      />
+                    ))}
+
+                    {/* Events */}
+                    {layoutEvents.map((event) => (
+                      <EventBlock
+                        key={event.id}
+                        event={event}
+                        color={moduleColors.get(event.moduleId) ?? "#86a37a"}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openEditModal(event, e.clientX, e.clientY);
+                        }}
+                      />
+                    ))}
+
+                    {/* Current time line */}
+                    {today && isCurrentWeek && <CurrentTimeLine />}
+                  </div>
+                );
+              })}
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </div>
       <AnimatePresence>
         {showCreateModal && draft && (
@@ -527,140 +553,133 @@ export function WeekGrid({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4"
-            onClick={() => {
-              if (!isSubmitting) {
+            className="fixed inset-0 z-50 overflow-hidden"
+            onClick={(e) => {
+              if (e.target === e.currentTarget && !isSubmitting) {
                 setShowCreateModal(false);
                 setDraft(null);
               }
             }}
           >
             <motion.form
-              initial={{ opacity: 0, y: 8, scale: 0.98 }}
+              initial={{ opacity: 0, y: 4, scale: 0.96 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 8, scale: 0.98 }}
-              transition={springConfig}
+              exit={{ opacity: 0, y: 4, scale: 0.96 }}
+              transition={{ type: "spring", stiffness: 400, damping: 30 }}
               onSubmit={submitDraft}
-              onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-md rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-2xl"
+              style={{
+                position: "absolute",
+                left: draft.x,
+                top: draft.y,
+              }}
+              className="w-[340px] rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-2xl overflow-hidden flex flex-col"
             >
-              <h3 className="text-base font-semibold text-[var(--foreground)]">Create Event</h3>
-              <p className="mt-1 text-xs text-[var(--muted-foreground)]">
-                {format(days[draft.dayIndex], "EEE, MMM d")} at{" "}
-                {`${draft.hour % 12 || 12}:${draft.minute.toString().padStart(2, "0")}${draft.hour < 12 ? "am" : "pm"}`}
-              </p>
-
-              <div className="mt-4 space-y-3">
-                <input
-                  type="text"
-                  placeholder="Event title"
-                  value={draft.title}
-                  onChange={(e) =>
-                    setDraft((prev) =>
-                      prev ? { ...prev, title: e.target.value } : prev
-                    )
-                  }
-                  className="w-full rounded-xl border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm outline-none focus:border-[var(--ring)]"
-                />
-
-                <div className="grid grid-cols-2 gap-3">
-                  <select
-                    value={draft.durationMinutes}
+              {/* Title Section */}
+              <div className="flex items-start gap-3 p-4 border-b border-[var(--border)]/40 hover:bg-[var(--muted)]/30 transition-colors">
+                <Circle className="mt-1 h-[18px] w-[18px] shrink-0 text-[var(--muted-foreground)]" />
+                <div className="flex-1">
+                  <input
+                    type="text"
+                    placeholder="New event"
+                    value={draft.title}
                     onChange={(e) =>
                       setDraft((prev) =>
-                        prev
-                          ? { ...prev, durationMinutes: Number(e.target.value) }
-                          : prev
+                        prev ? { ...prev, title: e.target.value } : prev
                       )
                     }
-                    className="rounded-xl border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm outline-none focus:border-[var(--ring)]"
-                  >
-                    <option value={30}>30 min</option>
-                    <option value={45}>45 min</option>
-                    <option value={60}>60 min</option>
-                    <option value={90}>90 min</option>
-                    <option value={120}>120 min</option>
-                  </select>
-
-                  <select
-                    value={draft.recurrence}
-                    onChange={(e) =>
-                      setDraft((prev) =>
-                        prev
-                          ? {
-                            ...prev,
-                            recurrence: e.target.value as typeof draft.recurrence,
-                          }
-                          : prev
-                      )
-                    }
-                    className="rounded-xl border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm outline-none focus:border-[var(--ring)]"
-                  >
-                    <option value="none">Does not repeat</option>
-                    <option value="daily">Daily</option>
-                    <option value="weekdays">Weekdays</option>
-                    <option value="weekly">Weekly</option>
-                    <option value="monthly">Monthly</option>
-                    <option value="yearly">Yearly</option>
-                  </select>
-                </div>
-
-                <select
-                  value={draft.calendarId}
-                  onChange={(e) =>
-                    setDraft((prev) =>
-                      prev ? { ...prev, calendarId: e.target.value } : prev
-                    )
-                  }
-                  className="w-full rounded-xl border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm outline-none focus:border-[var(--ring)]"
-                >
-                  {modules.map((module) => (
-                    <option key={module.id} value={module.id}>
-                      {module.name}
-                    </option>
-                  ))}
-                </select>
-
-                <div className="flex flex-wrap gap-2">
-                  {EVENT_COLOR_OPTIONS.map((color) => (
-                    <button
-                      key={color.id}
-                      type="button"
-                      onClick={() =>
-                        setDraft((prev) =>
-                          prev ? { ...prev, colorId: color.id } : prev
-                        )
-                      }
-                      className={`h-6 w-6 rounded-full border-2 transition-transform hover:scale-105 ${draft.colorId === color.id
-                          ? "border-[var(--foreground)]"
-                          : "border-transparent"
-                        }`}
-                      style={{ backgroundColor: color.hex }}
-                      aria-label={`Pick event color ${color.id}`}
-                    />
-                  ))}
+                    className="w-full bg-transparent p-0 text-[15px] font-semibold text-[var(--foreground)] placeholder:text-[var(--foreground)] outline-none border-none focus:ring-0"
+                    autoFocus
+                  />
+                  <input
+                    type="text"
+                    placeholder="Add description"
+                    className="mt-1 w-full bg-transparent p-0 text-[13px] text-[var(--muted-foreground)] outline-none border-none focus:ring-0"
+                  />
                 </div>
               </div>
 
-              <div className="mt-5 flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowCreateModal(false);
-                    setDraft(null);
-                  }}
-                  disabled={isSubmitting}
-                  className="rounded-xl px-3 py-2 text-sm text-[var(--muted-foreground)] hover:bg-[var(--secondary)] disabled:opacity-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="rounded-xl bg-[var(--primary)] px-3 py-2 text-sm font-semibold text-[var(--primary-foreground)] hover:opacity-95 disabled:opacity-50"
-                >
-                  {isSubmitting ? "Creating..." : "Create"}
-                </button>
+              {/* Guests Section */}
+              <div className="flex items-center gap-3 px-4 py-3 border-b border-[var(--border)]/40 hover:bg-[var(--muted)]/50 transition-colors cursor-text">
+                <Users className="h-[18px] w-[18px] shrink-0 text-[var(--muted-foreground)]" />
+                <span className="text-[14px] text-[var(--muted-foreground)] font-medium">Add guests</span>
+              </div>
+
+              {/* Location/Call Section */}
+              <div className="flex items-center gap-3 px-4 py-3 border-b border-[var(--border)]/40 hover:bg-[var(--muted)]/50 transition-colors cursor-text">
+                <Video className="h-[18px] w-[18px] shrink-0 text-[var(--muted-foreground)]" />
+                <span className="text-[14px] text-[var(--muted-foreground)] font-medium">Add location or call</span>
+              </div>
+
+              {/* Time Section */}
+              <div className="flex items-start gap-3 px-4 py-3 border-b border-[var(--border)]/40 relative">
+                <Clock className="mt-0.5 h-[18px] w-[18px] shrink-0 text-[var(--muted-foreground)]" />
+                <div className="flex-1 flex flex-col gap-1.5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 text-[14px] font-medium text-[var(--foreground)]">
+                      <span>{`${draft.hour.toString().padStart(2, "0")}:${draft.minute.toString().padStart(2, "0")}`}</span>
+                      <span className="text-[var(--muted-foreground)]">→</span>
+                      <span>
+                        {(() => {
+                          const eM = draft.minute + draft.durationMinutes;
+                          const eH = draft.hour + Math.floor(eM / 60);
+                          const eMRem = eM % 60;
+                          return `${eH.toString().padStart(2, "0")}:${eMRem.toString().padStart(2, "0")}`;
+                        })()}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      {/* Custom toggle style switch snippet */}
+                      <div className="relative inline-flex h-4 w-7 shrink-0 cursor-pointer items-center rounded-full bg-[var(--border)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background">
+                        <span className="pointer-events-none block h-3 w-3 rounded-full bg-[var(--card)] shadow-lg ring-0 transition-transform translate-x-0.5" />
+                      </div>
+                      <span className="text-[13px] text-[var(--muted-foreground)] font-medium">All day</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="text-[13px] text-[var(--muted-foreground)] flex items-center gap-1.5">
+                      <span>{format(days[draft.dayIndex], "MMM d yyyy")}</span>
+                      <span>→</span>
+                      <span>{format(days[draft.dayIndex], "MMM d yyyy")}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-[13px] text-[var(--muted-foreground)] cursor-pointer hover:text-[var(--foreground)] transition-colors">
+                      <span className="rotate-90">⇄</span>
+                      <span className="font-medium">Repeat</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Bottom Actions Row */}
+              <div className="flex items-center justify-between px-4 py-3 bg-[var(--card)]/50">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-1.5 relative">
+                    <button
+                      type="button"
+                      className="h-[14px] w-[14px] rounded-full border-2 border-transparent hover:scale-110 transition-transform bg-[#5484ed]"
+                      aria-label="Color"
+                    />
+                  </div>
+                  <CalendarIcon className="h-4 w-4 text-[var(--primary)]" />
+                  <Lock className="h-4 w-4 text-[var(--muted-foreground)]" />
+                  <Bell className="h-4 w-4 text-[var(--muted-foreground)]" />
+                  <div className="flex items-center gap-1 text-[13px] text-[var(--muted-foreground)]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[var(--muted-foreground)]"></span>
+                    <span className="font-medium">Busy</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <MoreHorizontal className="h-4 w-4 text-[var(--muted-foreground)] cursor-pointer hover:text-[var(--foreground)]" />
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="ml-2 rounded-lg bg-[var(--primary)] px-3 py-1 text-[13px] font-semibold text-[var(--primary-foreground)] hover:opacity-95 disabled:opacity-50"
+                  >
+                    {isSubmitting ? "..." : "Save"}
+                  </button>
+                </div>
               </div>
             </motion.form>
           </motion.div>
@@ -672,104 +691,102 @@ export function WeekGrid({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4"
-            onClick={() => {
-              if (!isEditingSubmitting) {
+            className="fixed inset-0 z-50 overflow-hidden"
+            onClick={(e) => {
+              if (e.target === e.currentTarget && !isEditingSubmitting) {
                 setEditingEvent(null);
                 setEditDraft(null);
               }
             }}
           >
             <motion.form
-              initial={{ opacity: 0, y: 8, scale: 0.98 }}
+              initial={{ opacity: 0, y: 4, scale: 0.96 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 8, scale: 0.98 }}
-              transition={springConfig}
+              exit={{ opacity: 0, y: 4, scale: 0.96 }}
+              transition={{ type: "spring", stiffness: 400, damping: 30 }}
               onSubmit={submitEditDraft}
-              onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-md rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-2xl"
+              style={{
+                position: "absolute",
+                left: editDraft.x,
+                top: editDraft.y,
+              }}
+              className="w-[340px] rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-2xl overflow-hidden flex flex-col"
             >
-              <h3 className="text-base font-semibold text-[var(--foreground)]">Edit Event</h3>
-              <p className="mt-1 text-xs text-[var(--muted-foreground)]">
-                {format(days[editingEvent.dayOffset], "EEE, MMM d")}
-              </p>
-
-              <div className="mt-4 space-y-3">
-                <input
-                  type="text"
-                  value={editDraft.title}
-                  onChange={(e) =>
-                    setEditDraft((prev) =>
-                      prev ? { ...prev, title: e.target.value } : prev
-                    )
-                  }
-                  className="w-full rounded-xl border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm outline-none focus:border-[var(--ring)]"
-                />
-
-                <div className="grid grid-cols-2 gap-3">
+              <div className="flex items-start gap-3 p-4 border-b border-[var(--border)]/40 hover:bg-[var(--muted)]/30 transition-colors">
+                <Circle className="mt-1 h-[18px] w-[18px] shrink-0 text-[var(--muted-foreground)]" />
+                <div className="flex-1">
                   <input
-                    type="time"
-                    value={`${editDraft.hour.toString().padStart(2, "0")}:${editDraft.minute.toString().padStart(2, "0")}`}
-                    onChange={(e) => {
-                      const [hourRaw, minuteRaw] = e.target.value.split(":");
-                      const hour = Number(hourRaw);
-                      const minute = Number(minuteRaw);
-                      if (!Number.isNaN(hour) && !Number.isNaN(minute)) {
-                        setEditDraft((prev) =>
-                          prev ? { ...prev, hour, minute } : prev
-                        );
-                      }
-                    }}
-                    className="rounded-xl border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm outline-none focus:border-[var(--ring)]"
-                  />
-
-                  <select
-                    value={editDraft.durationMinutes}
+                    type="text"
+                    placeholder="Event title"
+                    value={editDraft.title}
                     onChange={(e) =>
                       setEditDraft((prev) =>
-                        prev
-                          ? { ...prev, durationMinutes: Number(e.target.value) }
-                          : prev
+                        prev ? { ...prev, title: e.target.value } : prev
                       )
                     }
-                    className="rounded-xl border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm outline-none focus:border-[var(--ring)]"
-                  >
-                    <option value={30}>30 min</option>
-                    <option value={45}>45 min</option>
-                    <option value={60}>60 min</option>
-                    <option value={90}>90 min</option>
-                    <option value={120}>120 min</option>
-                  </select>
+                    className="w-full bg-transparent p-0 text-[15px] font-semibold text-[var(--foreground)] placeholder:text-[var(--foreground)] outline-none border-none focus:ring-0"
+                    autoFocus
+                  />
                 </div>
               </div>
 
-              <div className="mt-5 flex items-center justify-between gap-2">
+              <div className="flex items-start gap-3 px-4 py-3 border-b border-[var(--border)]/40">
+                <Clock className="mt-0.5 h-[18px] w-[18px] shrink-0 text-[var(--muted-foreground)]" />
+                <div className="flex-1 flex flex-col gap-2">
+                  <div className="flex gap-2 items-center">
+                    <input
+                      type="time"
+                      value={`${editDraft.hour.toString().padStart(2, "0")}:${editDraft.minute.toString().padStart(2, "0")}`}
+                      onChange={(e) => {
+                        const [hourRaw, minuteRaw] = e.target.value.split(":");
+                        const hour = Number(hourRaw);
+                        const minute = Number(minuteRaw);
+                        if (!Number.isNaN(hour) && !Number.isNaN(minute)) {
+                          setEditDraft((prev) =>
+                            prev ? { ...prev, hour, minute } : prev
+                          );
+                        }
+                      }}
+                      className="rounded-md border border-[var(--border)] bg-transparent px-2 py-1 text-sm outline-none focus:border-[var(--ring)] text-[var(--foreground)]"
+                    />
+                    <span className="text-[var(--muted-foreground)] text-sm">for</span>
+                    <select
+                      value={editDraft.durationMinutes}
+                      onChange={(e) =>
+                        setEditDraft((prev) =>
+                          prev
+                            ? { ...prev, durationMinutes: Number(e.target.value) }
+                            : prev
+                        )
+                      }
+                      className="rounded-md border border-[var(--border)] bg-transparent px-2 py-1 text-sm outline-none focus:border-[var(--ring)] text-[var(--foreground)] min-w-[80px]"
+                    >
+                      <option value={30}>30 min</option>
+                      <option value={45}>45 min</option>
+                      <option value={60}>60 min</option>
+                      <option value={90}>90 min</option>
+                      <option value={120}>120 min</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between px-4 py-3 bg-[var(--card)]/50">
                 <button
                   type="button"
                   onClick={handleDeleteEditingEvent}
                   disabled={isEditingSubmitting}
-                  className="rounded-xl px-3 py-2 text-sm font-medium text-[var(--destructive)] hover:bg-[var(--destructive)]/10 disabled:opacity-50"
+                  className="rounded-lg px-2 py-1 text-[13px] font-medium text-[var(--destructive)] hover:bg-[var(--destructive)]/10 disabled:opacity-50 transition-colors"
                 >
-                  Delete
+                  Delete event
                 </button>
                 <div className="flex gap-2">
                   <button
-                    type="button"
-                    onClick={() => {
-                      setEditingEvent(null);
-                      setEditDraft(null);
-                    }}
-                    disabled={isEditingSubmitting}
-                    className="rounded-xl px-3 py-2 text-sm text-[var(--muted-foreground)] hover:bg-[var(--secondary)] disabled:opacity-50"
-                  >
-                    Cancel
-                  </button>
-                  <button
                     type="submit"
                     disabled={isEditingSubmitting}
-                    className="rounded-xl bg-[var(--primary)] px-3 py-2 text-sm font-semibold text-[var(--primary-foreground)] hover:opacity-95 disabled:opacity-50"
+                    className="rounded-lg bg-[var(--primary)] px-3 py-1 text-[13px] font-semibold text-[var(--primary-foreground)] hover:opacity-95 disabled:opacity-50"
                   >
-                    {isEditingSubmitting ? "Saving..." : "Save"}
+                    {isEditingSubmitting ? "..." : "Save"}
                   </button>
                 </div>
               </div>
