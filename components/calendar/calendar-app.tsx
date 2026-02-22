@@ -376,7 +376,7 @@ export function CalendarApp() {
       title: string;
       start: string;
       durationMinutes: number;
-      recurrence: "none" | "daily" | "weekdays" | "weekly" | "monthly" | "yearly";
+      recurrence: "none" | "daily" | "weekdays" | "weekly" | "monthly" | "yearly" | "custom";
       colorId?: string;
       timeZone: string;
     }) => {
@@ -408,7 +408,7 @@ export function CalendarApp() {
       title: string;
       start: string;
       durationMinutes: number;
-      recurrence: "none" | "daily" | "weekdays" | "weekly" | "monthly" | "yearly";
+      recurrence: "none" | "daily" | "weekdays" | "weekly" | "monthly" | "yearly" | "custom";
       colorId?: string;
       timeZone: string;
     }) => {

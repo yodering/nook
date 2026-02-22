@@ -25,7 +25,7 @@ interface WeekGridProps {
     title: string;
     start: string;
     durationMinutes: number;
-    recurrence: "none" | "daily" | "weekdays" | "weekly" | "monthly" | "yearly";
+    recurrence: "none" | "daily" | "weekdays" | "weekly" | "monthly" | "yearly" | "custom";
     colorId?: string;
     timeZone: string;
   }) => Promise<boolean>;
@@ -36,7 +36,7 @@ interface WeekGridProps {
     title: string;
     start: string;
     durationMinutes: number;
-    recurrence: "none" | "daily" | "weekdays" | "weekly" | "monthly" | "yearly";
+    recurrence: "none" | "daily" | "weekdays" | "weekly" | "monthly" | "yearly" | "custom";
     colorId?: string;
     timeZone: string;
   }) => Promise<boolean>;
@@ -260,7 +260,7 @@ export function WeekGrid({
     calendarId: string;
     title: string;
     durationMinutes: number;
-    recurrence: "none" | "daily" | "weekdays" | "weekly" | "monthly" | "yearly";
+    recurrence: "none" | "daily" | "weekdays" | "weekly" | "monthly" | "yearly" | "custom";
     colorId: string;
     x: number;
     y: number;
@@ -540,6 +540,40 @@ export function WeekGrid({
 
                     {/* Current time line */}
                     {today && isCurrentWeek && <CurrentTimeLine />}
+
+                    {/* Temporary Draft Drawing */}
+                    {draft && draft.dayIndex === dayIndex && (
+                      <EventBlock
+                        event={{
+                          id: "draft",
+                          moduleId: draft.calendarId,
+                          title: draft.title || "(New event)",
+                          startHour: draft.hour,
+                          startMinute: draft.minute,
+                          endHour: draft.hour + Math.floor((draft.minute + draft.durationMinutes) / 60),
+                          endMinute: (draft.minute + draft.durationMinutes) % 60,
+                          dayOffset: dayIndex,
+                          overlapIndex: layoutEvents.length,
+                          totalOverlaps: Math.max(1, layoutEvents.length + 1),
+                        }}
+                        color={moduleColors.get(draft.calendarId) ?? "#cae3eb"} // Amie blue default
+                      />
+                    )}
+                    {editDraft && editingEvent && editingEvent.dayOffset === dayIndex && (
+                      <EventBlock
+                        event={{
+                          ...editingEvent,
+                          title: editDraft.title || "(No title)",
+                          startHour: editDraft.hour,
+                          startMinute: editDraft.minute,
+                          endHour: editDraft.hour + Math.floor((editDraft.minute + editDraft.durationMinutes) / 60),
+                          endMinute: (editDraft.minute + editDraft.durationMinutes) % 60,
+                          overlapIndex: editingEvent.overlapIndex,
+                          totalOverlaps: editingEvent.totalOverlaps,
+                        }}
+                        color={moduleColors.get(editingEvent.moduleId) ?? "#cae3eb"}
+                      />
+                    )}
                   </div>
                 );
               })}
@@ -596,12 +630,6 @@ export function WeekGrid({
                     className="mt-1 w-full bg-transparent p-0 text-[13px] text-[var(--muted-foreground)] outline-none border-none focus:ring-0"
                   />
                 </div>
-              </div>
-
-              {/* Guests Section */}
-              <div className="flex items-center gap-3 px-4 py-3 border-b border-[var(--border)]/40 hover:bg-[var(--muted)]/50 transition-colors cursor-text">
-                <Users className="h-[18px] w-[18px] shrink-0 text-[var(--muted-foreground)]" />
-                <span className="text-[14px] text-[var(--muted-foreground)] font-medium">Add guests</span>
               </div>
 
               {/* Location/Call Section */}
@@ -761,11 +789,13 @@ export function WeekGrid({
                       }
                       className="rounded-md border border-[var(--border)] bg-transparent px-2 py-1 text-sm outline-none focus:border-[var(--ring)] text-[var(--foreground)] min-w-[80px]"
                     >
-                      <option value={30}>30 min</option>
-                      <option value={45}>45 min</option>
-                      <option value={60}>60 min</option>
-                      <option value={90}>90 min</option>
-                      <option value={120}>120 min</option>
+                      <option value="none">Does not repeat</option>
+                      <option value="daily">Daily</option>
+                      <option value="weekdays">Weekdays</option>
+                      <option value="weekly">Weekly</option>
+                      <option value="monthly">Monthly</option>
+                      <option value="yearly">Yearly</option>
+                      <option value="custom">Custom</option>
                     </select>
                   </div>
                 </div>

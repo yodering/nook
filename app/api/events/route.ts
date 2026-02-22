@@ -19,6 +19,10 @@ function toRecurrenceRule(value: string): string[] | undefined {
       return ["RRULE:FREQ=MONTHLY"];
     case "yearly":
       return ["RRULE:FREQ=YEARLY"];
+    case "custom":
+      // Fallback - since we don't build custom RRULE arrays yet, we just omit it
+      // Alternatively, we skip creating recurrence for 'custom' right now.
+      return undefined;
     default:
       return undefined;
   }
@@ -37,7 +41,7 @@ export async function POST(req: Request) {
       start?: string;
       durationMinutes?: number;
       timeZone?: string;
-      recurrence?: "none" | "daily" | "weekdays" | "weekly" | "monthly" | "yearly";
+      recurrence?: "none" | "daily" | "weekdays" | "weekly" | "monthly" | "yearly" | "custom";
       colorId?: string;
     };
 
@@ -103,7 +107,7 @@ export async function PATCH(req: Request) {
       start?: string;
       durationMinutes?: number;
       timeZone?: string;
-      recurrence?: "none" | "daily" | "weekdays" | "weekly" | "monthly" | "yearly";
+      recurrence?: "none" | "daily" | "weekdays" | "weekly" | "monthly" | "yearly" | "custom";
       colorId?: string;
     };
 
