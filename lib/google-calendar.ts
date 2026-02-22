@@ -71,6 +71,134 @@ async function googleFetch<T>(accessToken: string, url: string): Promise<T> {
   return (await response.json()) as T;
 }
 
+interface CreateGoogleEventInput {
+  accessToken: string;
+  calendarId: string;
+  title: string;
+  start: string;
+  end: string;
+  timeZone: string;
+  colorId?: string;
+  recurrence?: string[];
+}
+
+interface CreatedGoogleEvent {
+  id?: string;
+  summary?: string;
+  start?: {
+    dateTime?: string;
+  };
+  end?: {
+    dateTime?: string;
+  };
+}
+
+export async function createGoogleCalendarEvent(
+  input: CreateGoogleEventInput
+): Promise<CreatedGoogleEvent> {
+  const response = await fetch(
+    `${GOOGLE_CALENDAR_BASE_URL}/calendars/${encodeURIComponent(input.calendarId)}/events`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${input.accessToken}`,
+        "Content-Type": "application/json",
+      },
+      cache: "no-store",
+      body: JSON.stringify({
+        summary: input.title,
+        start: {
+          dateTime: input.start,
+          timeZone: input.timeZone,
+        },
+        end: {
+          dateTime: input.end,
+          timeZone: input.timeZone,
+        },
+        colorId: input.colorId,
+        recurrence: input.recurrence,
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Google Calendar API error (${response.status}): ${text}`);
+  }
+
+  return (await response.json()) as CreatedGoogleEvent;
+}
+
+interface UpdateGoogleEventInput {
+  accessToken: string;
+  calendarId: string;
+  eventId: string;
+  title: string;
+  start: string;
+  end: string;
+  timeZone: string;
+  colorId?: string;
+  recurrence?: string[] | null;
+}
+
+export async function updateGoogleCalendarEvent(
+  input: UpdateGoogleEventInput
+): Promise<CreatedGoogleEvent> {
+  const response = await fetch(
+    `${GOOGLE_CALENDAR_BASE_URL}/calendars/${encodeURIComponent(input.calendarId)}/events/${encodeURIComponent(input.eventId)}`,
+    {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${input.accessToken}`,
+        "Content-Type": "application/json",
+      },
+      cache: "no-store",
+      body: JSON.stringify({
+        summary: input.title,
+        start: {
+          dateTime: input.start,
+          timeZone: input.timeZone,
+        },
+        end: {
+          dateTime: input.end,
+          timeZone: input.timeZone,
+        },
+        colorId: input.colorId,
+        recurrence: input.recurrence,
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Google Calendar API error (${response.status}): ${text}`);
+  }
+
+  return (await response.json()) as CreatedGoogleEvent;
+}
+
+export async function deleteGoogleCalendarEvent(input: {
+  accessToken: string;
+  calendarId: string;
+  eventId: string;
+}): Promise<void> {
+  const response = await fetch(
+    `${GOOGLE_CALENDAR_BASE_URL}/calendars/${encodeURIComponent(input.calendarId)}/events/${encodeURIComponent(input.eventId)}`,
+    {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${input.accessToken}`,
+      },
+      cache: "no-store",
+    }
+  );
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Google Calendar API error (${response.status}): ${text}`);
+  }
+}
+
 export async function fetchCalendars(accessToken: string): Promise<GoogleCalendarListItem[]> {
   const calendars: GoogleCalendarListItem[] = [];
   let pageToken: string | undefined;

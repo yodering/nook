@@ -17,6 +17,7 @@ import type {
 export function CalendarApp() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [defaultEventDuration, setDefaultEventDuration] = useState(60);
   const [modules, setModules] = useState<Module[]>([]);
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [todoLists, setTodoLists] = useState<TodoList[]>([]);
@@ -41,6 +42,7 @@ export function CalendarApp() {
         const data = (await response.json()) as {
           sidebarOpen?: boolean;
           theme?: "light" | "dark" | "system";
+          defaultEventDuration?: number;
         };
 
         if (ignore) {
@@ -52,6 +54,9 @@ export function CalendarApp() {
         }
         if (data.theme) {
           setTheme(data.theme);
+        }
+        if (typeof data.defaultEventDuration === "number") {
+          setDefaultEventDuration(data.defaultEventDuration);
         }
       } catch {
         // Ignore settings bootstrap errors and keep local defaults.
@@ -375,6 +380,107 @@ export function CalendarApp() {
     });
   }, []);
 
+  const handleCreateEvent = useCallback(
+    async (input: {
+      calendarId: string;
+      title: string;
+      start: string;
+      durationMinutes: number;
+      recurrence: "none" | "daily" | "weekdays" | "weekly" | "monthly" | "yearly";
+      colorId?: string;
+      timeZone: string;
+    }) => {
+      try {
+        const response = await fetch("/api/events", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(input),
+        });
+        if (!response.ok) {
+          return false;
+        }
+
+        const created = (await response.json()) as CalendarEvent;
+        setEvents((prev) => [...prev, created]);
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    []
+  );
+
+  const handleUpdateEvent = useCallback(
+    async (input: {
+      eventCompositeId: string;
+      calendarId: string;
+      eventId: string;
+      title: string;
+      start: string;
+      durationMinutes: number;
+      recurrence: "none" | "daily" | "weekdays" | "weekly" | "monthly" | "yearly";
+      colorId?: string;
+      timeZone: string;
+    }) => {
+      try {
+        const response = await fetch("/api/events", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            calendarId: input.calendarId,
+            eventId: input.eventId,
+            title: input.title,
+            start: input.start,
+            durationMinutes: input.durationMinutes,
+            recurrence: input.recurrence,
+            colorId: input.colorId,
+            timeZone: input.timeZone,
+          }),
+        });
+        if (!response.ok) {
+          return false;
+        }
+
+        const updated = (await response.json()) as CalendarEvent;
+        setEvents((prev) =>
+          prev.map((event) =>
+            event.id === input.eventCompositeId ? updated : event
+          )
+        );
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    []
+  );
+
+  const handleDeleteEvent = useCallback(
+    async (input: { eventCompositeId: string; calendarId: string; eventId: string }) => {
+      try {
+        const response = await fetch("/api/events", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            calendarId: input.calendarId,
+            eventId: input.eventId,
+          }),
+        });
+        if (!response.ok) {
+          return false;
+        }
+
+        setEvents((prev) =>
+          prev.filter((event) => event.id !== input.eventCompositeId)
+        );
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    []
+  );
+
   return (
     <div className="nook-calendar-shell">
       <div className="nook-calendar-frame">
@@ -411,7 +517,15 @@ export function CalendarApp() {
                 couldn&apos;t sync google calendar: {loadError}
               </div>
             )}
-            <WeekGrid currentDate={currentDate} events={events} modules={modules} />
+            <WeekGrid
+              currentDate={currentDate}
+              events={events}
+              modules={modules}
+              defaultEventDuration={defaultEventDuration}
+              onCreateEvent={handleCreateEvent}
+              onUpdateEvent={handleUpdateEvent}
+              onDeleteEvent={handleDeleteEvent}
+            />
             {isLoading && (
               <div className="pointer-events-none absolute right-4 top-4 z-30 rounded-full border border-[var(--border)] bg-[var(--card)] px-3 py-1 text-[11px] uppercase tracking-wider text-[var(--muted-foreground)] shadow-sm">
                 syncing...
