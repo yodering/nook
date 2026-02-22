@@ -596,17 +596,12 @@ export function WeekGrid({
             }}
           >
             <motion.form
-              initial={{ opacity: 0, y: 4, scale: 0.96 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 4, scale: 0.96 }}
+              initial={{ opacity: 0, y: 20, scale: 0.96, x: "-50%" }}
+              animate={{ opacity: 1, y: 0, scale: 1, x: "-50%" }}
+              exit={{ opacity: 0, y: 20, scale: 0.96, x: "-50%" }}
               transition={{ type: "spring", stiffness: 400, damping: 30 }}
               onSubmit={submitDraft}
-              style={{
-                position: "absolute",
-                left: draft.x,
-                top: draft.y,
-              }}
-              className="w-[340px] rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-2xl overflow-hidden flex flex-col"
+              className="absolute bottom-6 left-1/2 w-[340px] rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-2xl overflow-hidden flex flex-col"
             >
               {/* Title Section */}
               <div className="flex items-start gap-3 p-4 border-b border-[var(--border)]/40 hover:bg-[var(--muted)]/30 transition-colors">
@@ -728,17 +723,12 @@ export function WeekGrid({
             }}
           >
             <motion.form
-              initial={{ opacity: 0, y: 4, scale: 0.96 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 4, scale: 0.96 }}
+              initial={{ opacity: 0, y: 20, scale: 0.96, x: "-50%" }}
+              animate={{ opacity: 1, y: 0, scale: 1, x: "-50%" }}
+              exit={{ opacity: 0, y: 20, scale: 0.96, x: "-50%" }}
               transition={{ type: "spring", stiffness: 400, damping: 30 }}
               onSubmit={submitEditDraft}
-              style={{
-                position: "absolute",
-                left: editDraft.x,
-                top: editDraft.y,
-              }}
-              className="w-[340px] rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-2xl overflow-hidden flex flex-col"
+              className="absolute bottom-6 left-1/2 w-[340px] rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-2xl overflow-hidden flex flex-col"
             >
               <div className="flex items-start gap-3 p-4 border-b border-[var(--border)]/40 hover:bg-[var(--muted)]/30 transition-colors">
                 <Circle className="mt-1 h-[18px] w-[18px] shrink-0 text-[var(--muted-foreground)]" />
